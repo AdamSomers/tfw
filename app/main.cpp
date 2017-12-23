@@ -1,10 +1,14 @@
+#include <iostream>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "linmath.h"
 
 #include "Scene.h"
 
-#include <iostream>
+#include <stdio.h>
+#include <stdlib.h>
+
 using namespace std;
 
 static const struct
@@ -44,7 +48,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 int main(int argc, const char** argv)
 {
-    cout << "tfw application start" << endl;
+   cout << "tfw application start" << endl;
     GLFWwindow* window;
     GLuint vertex_buffer, vertex_shader, fragment_shader, program;
     GLint mvp_location, vpos_location, vcol_location;
