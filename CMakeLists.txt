@@ -6,9 +6,9 @@ set(CMAKE_CXX_EXTENSIONS ON)
 
 FILE(GLOB_RECURSE sources src/*.cpp src/*.h)
 
-add_executable(tfwapp app/main.cpp glfw/deps/glad.c)
+add_executable(tfwapp app/main.cpp ext/glfw/deps/glad.c)
 
-include_directories(src glfw/include glfw/deps)
+include_directories(src ext/glfw/include ext/glfw/deps)
 
 add_library(tfwlib ${sources})
 
@@ -17,6 +17,6 @@ if (WIN32)
     target_compile_definitions(tfwlib PUBLIC WINDOWS=1)
 endif (WIN32)
 
-add_subdirectory(glfw EXCLUDE_FROM_ALL)
+add_subdirectory(ext/glfw EXCLUDE_FROM_ALL)
 
 target_link_libraries(tfwapp tfwlib glfw)

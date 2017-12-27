@@ -1,5 +1,5 @@
 [submodule "glfw"]
-	path = glfw
+	path = ext/glfw
 	url = git@github.com:glfw/glfw.git
 [submodule "ext/stb"]
 	path = ext/stb
