@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 project(tfw)
 
 set (CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS ON)
 
 FILE(GLOB_RECURSE sources src/*.cpp src/*.h)
 
@@ -16,6 +17,6 @@ if (WIN32)
     target_compile_definitions(tfwlib PUBLIC WINDOWS=1)
 endif (WIN32)
 
-add_subdirectory(glfw)
+add_subdirectory(glfw EXCLUDE_FROM_ALL)
 
 target_link_libraries(tfwapp tfwlib glfw)
