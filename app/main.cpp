@@ -13,9 +13,9 @@ using namespace std;
 
 struct Tri {
     GLfloat vertices[9] = {
-        -1.f, -1.f, 0.2f,
-        1.f,  -1.f, 0.2f,
-        0.f, 1.f, 0.2f
+        -1.f, -1.f, 0.f,
+        1.f,  -1.f, 0.f,
+        0.f, 1.f, 0.f
     };
 
     GLfloat colors[12] = {
@@ -34,12 +34,12 @@ struct Tri {
 
 struct Quad {
     GLfloat vertices[18] = {
-        -1.f, -1.f, 0.f,
-        1.f,  -1.f, 0.f,
-        -1.f, 1.f, 0.f,
-        -1.f, 1.f, 0.f,
-        1.f,  -1.f, 0.f,
-        1.f, 1.f, 0.f
+        -10.f, -1.f, 10.f,
+        10.f,  -1.f, 10.f,
+        -10.f, -1.f, -10.f,
+        -10.f, -1.f, -10.f,
+        10.f,  -1.f, 10.f,
+        10.f, -1.f, -10.f
     };
 
     GLfloat colors[24] = {
@@ -52,12 +52,12 @@ struct Quad {
     };
 
     GLfloat uvs[12] = {
-        0.f, 1.f,
-        1.f, 1.f,
+        0.f, 10.f,
+        10.f, 10.f,
         0.f, 0.f,
         0.f, 0.f,
-        1.f, 1.f,
-        1.f, 0.f
+        10.f, 10.f,
+        10.f, 0.f
     };
     GLuint vertBuf, colorBuf, uvBuf;
 };
@@ -197,7 +197,7 @@ int main(int argc, const char** argv)
     ygl::image4b im = ygl::make_grid_image(256, 256);
     GLuint tex;
     glGenTextures(1, &tex);
-    //glBindTexture(GL_TEXTURE_2D, tex);
+    glBindTexture(GL_TEXTURE_2D, tex);
     float pixels[] = {
         1.0f, 1.0f, 1.0f,   0.f, 0.f, 0.f, 0.f,
         0.f, 0.f, 0.f, 0.f,   1.0f, 1.0f, 1.0f
@@ -207,8 +207,8 @@ int main(int argc, const char** argv)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, im.data());
     glUniform1i(glGetUniformLocation(program, "tex"), 0);
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
@@ -218,13 +218,14 @@ int main(int argc, const char** argv)
     {
         float ratio;
         int width, height;
-        mat4x4 m, v, p;
+        mat4x4 m, v, p, mS;
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
         mat4x4_identity(m);
+        mat4x4_identity(mS);
         mat4x4_identity(v);
         mat4x4_perspective(p,
             1,
@@ -235,15 +236,16 @@ int main(int argc, const char** argv)
         // move the eye back 2m
         mat4x4_translate(v, 0.f, 0.f, -2.f);
         // spin the model
-        mat4x4_translate(m, -1.f, 0.f, -1.f);
-        mat4x4_rotate_Y(m, m, (float) glfwGetTime());
+        mat4x4_translate(m, 0.f, 0.f, -1.f);
         glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*) m);
         glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, (const GLfloat*) v);
         glUniformMatrix4fv(projMatLocation, 1, GL_FALSE, (const GLfloat*) p);
 
         glBindVertexArray(quadVaoId);
         glDrawArrays(GL_TRIANGLES, 0, 6);
-                    glBindVertexArray(triVaoId);
+        mat4x4_rotate_Y(m, m, (float) glfwGetTime());
+        glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*)m);
+        glBindVertexArray(triVaoId);
         glDrawArrays(GL_TRIANGLES, 0, 3);
         
         
