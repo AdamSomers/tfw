@@ -146,7 +146,7 @@ void computeMatrices(GLFWwindow* window)
         horizontalAngle += mouseSpeed * deltaTime * float(x);
         verticalAngle   += mouseSpeed * deltaTime * float(y);
     }
-
+    verticalAngle = std::min(std::max(verticalAngle, -3.14f / 2.f), 3.14f / 2.f);
     vec3 direction = {
         cos(verticalAngle) * sin(horizontalAngle),
         sin(verticalAngle),
