@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.7)
 project(tfw)
 
 set (CMAKE_CXX_STANDARD 14)
+add_definitions(-DYGL_OPENGL=1)
 
 FILE(GLOB_RECURSE sources src/*.cpp src/*.h)
 

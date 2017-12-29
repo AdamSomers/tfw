@@ -101,11 +101,93 @@ static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
 }
+
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-    glfwSetWindowShouldClose(window, GLFW_TRUE);
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
+    
 }
+
+// camera
+vec3 position = { 0, 0, 2 };
+// horizontal angle : toward -Z
+float horizontalAngle = 3.14f;
+// vertical angle : 0, look at the horizon
+float verticalAngle = 0.0f;
+// Initial Field of View
+float initialFoV = 45.0f;
+float speed = 3.0f; // 3 units / second
+float mouseSpeed = 0.155f;
+float lastTime = 0.f;
+mat4x4 perspective, view;
+double lastX = -1;
+double lastY = -1;
+
+void computeMatrices(GLFWwindow* window)
+{
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    double currentTime = glfwGetTime();
+    float deltaTime = float(currentTime - lastTime);
+    lastTime = currentTime;
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    if (lastX == -1) {
+        lastX = xpos;
+        lastY = ypos;
+    }
+    double x = lastX - xpos;
+    double y = lastY - ypos;
+    lastX = xpos;
+    lastY = ypos;
+    bool buttonDown = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS;
+    if (buttonDown) {
+        horizontalAngle += mouseSpeed * deltaTime * float(x);
+        verticalAngle   += mouseSpeed * deltaTime * float(y);
+    }
+
+    vec3 direction = {
+        cos(verticalAngle) * sin(horizontalAngle),
+        sin(verticalAngle),
+        cos(verticalAngle) * cos(horizontalAngle)
+    };
+    vec3 right = { 
+        sin(horizontalAngle - 3.14f/2.0f),
+        0,
+        cos(horizontalAngle - 3.14f/2.0f)
+    };
+    vec3 up;
+    vec3_mul_cross(up, right, direction);
+
+    if (glfwGetKey(window, GLFW_KEY_W ) == GLFW_PRESS){
+        vec3_scale(direction, direction, deltaTime * speed);
+        vec3_add(position, position, direction);
+    }
+    if (glfwGetKey(window, GLFW_KEY_S ) == GLFW_PRESS){
+        vec3_scale(direction, direction, deltaTime * speed);
+        vec3_sub(position, position, direction);
+    }
+    if (glfwGetKey(window, GLFW_KEY_D ) == GLFW_PRESS){
+        vec3_scale(right, right, deltaTime * speed);
+        vec3_add(position, position, right);
+    }
+    if (glfwGetKey(window, GLFW_KEY_A ) == GLFW_PRESS){
+        vec3_scale(right, right, deltaTime * speed);
+        vec3_sub(position, position, right);
+    }
+
+    mat4x4_identity(perspective);
+    mat4x4_perspective(perspective,
+                       1,
+                       width / (float)height,
+                       .5f, 60.0);
+
+    vec3 center;
+    vec3_add(center, position, direction);
+    mat4x4_look_at(view, position, center, up);
+}
+
 int main(int argc, const char** argv)
 {
     cout << "tfw application start" << endl;
@@ -214,32 +296,26 @@ int main(int argc, const char** argv)
     
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
+    //ygl::gl_enable_wireframe(true);
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
         int width, height;
-        mat4x4 m, v, p, mS;
+        mat4x4 m;
         glfwGetFramebufferSize(window, &width, &height);
         ratio = width / (float) height;
         glViewport(0, 0, width, height);
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
         mat4x4_identity(m);
-        mat4x4_identity(mS);
-        mat4x4_identity(v);
-        mat4x4_perspective(p,
-            1,
-            width / (float)height,
-            1.f, 60.0);
         glUseProgram(program);
-        
-        // move the eye back 2m
-        mat4x4_translate(v, 0.f, 0.f, -2.f);
         // spin the model
         mat4x4_translate(m, 0.f, 0.f, -1.f);
+
+        computeMatrices(window);
         glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*) m);
-        glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, (const GLfloat*) v);
-        glUniformMatrix4fv(projMatLocation, 1, GL_FALSE, (const GLfloat*) p);
+        glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, (const GLfloat*) view);
+        glUniformMatrix4fv(projMatLocation, 1, GL_FALSE, (const GLfloat*) perspective);
 
         glBindVertexArray(quadVaoId);
         glDrawArrays(GL_TRIANGLES, 0, 6);
