@@ -123,6 +123,7 @@ float lastTime = 0.f;
 mat4x4 perspective, view;
 double lastX = -1;
 double lastY = -1;
+bool fly = false;
 
 void computeMatrices(GLFWwindow* window)
 {
@@ -152,6 +153,11 @@ void computeMatrices(GLFWwindow* window)
         sin(verticalAngle),
         cos(verticalAngle) * cos(horizontalAngle)
     };
+    vec3 walkDirection = {
+        sin(horizontalAngle),
+        0,
+        cos(horizontalAngle)
+    };
     vec3 right = { 
         sin(horizontalAngle - 3.14f/2.0f),
         0,
@@ -160,13 +166,25 @@ void computeMatrices(GLFWwindow* window)
     vec3 up;
     vec3_mul_cross(up, right, direction);
 
+    vec3 move;
+    if (fly) {
+        move[0] = direction[0];
+        move[1] = direction[1];
+        move[2] = direction[2];
+    }
+    else {
+        move[0] = walkDirection[0];
+        move[1] = walkDirection[1];
+        move[2] = walkDirection[2];
+    }
+
     if (glfwGetKey(window, GLFW_KEY_W ) == GLFW_PRESS){
-        vec3_scale(direction, direction, deltaTime * speed);
-        vec3_add(position, position, direction);
+        vec3_scale(move, move, deltaTime * speed);
+        vec3_add(position, position, move);
     }
     if (glfwGetKey(window, GLFW_KEY_S ) == GLFW_PRESS){
-        vec3_scale(direction, direction, deltaTime * speed);
-        vec3_sub(position, position, direction);
+        vec3_scale(move, move, deltaTime * speed);
+        vec3_sub(position, position, move);
     }
     if (glfwGetKey(window, GLFW_KEY_D ) == GLFW_PRESS){
         vec3_scale(right, right, deltaTime * speed);
@@ -175,6 +193,18 @@ void computeMatrices(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_A ) == GLFW_PRESS){
         vec3_scale(right, right, deltaTime * speed);
         vec3_sub(position, position, right);
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE ) == GLFW_PRESS){
+        vec3 jump;
+        vec3_mul_cross(jump, right, walkDirection);
+        vec3_scale(jump, jump, deltaTime * speed);
+        vec3_add(position, position, jump);
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS){
+        vec3 jump;
+        vec3_mul_cross(jump, right, walkDirection);
+        vec3_scale(jump, jump, deltaTime * speed);
+        vec3_sub(position, position, jump);
     }
 
     mat4x4_identity(perspective);
