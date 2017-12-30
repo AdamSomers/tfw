@@ -29,7 +29,10 @@ struct Tri {
         0.f, 1.f,
         1.f, 1.f
     };
-    GLuint vertBuf, colorBuf, uvBuf;
+
+    GLfloat normals[9];
+
+    GLuint vertBuf, colorBuf, uvBuf, normalBuf;
 };
 
 struct Quad {
@@ -59,7 +62,131 @@ struct Quad {
         10.f, 10.f,
         10.f, 0.f
     };
-    GLuint vertBuf, colorBuf, uvBuf;
+    GLuint vertBuf, colorBuf, uvBuf, normalBuf;
+
+    GLfloat normals[18];
+};
+
+struct Cube {
+    GLfloat vertices[108] = {
+        -1.0f,-1.0f,-1.0f, // triangle 1 : begin
+        -1.0f,-1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f, // triangle 1 : end
+        1.0f, 1.0f,-1.0f, // triangle 2 : begin
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f,-1.0f, // triangle 2 : end
+        1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f, 1.0f,
+        -1.0f,-1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        -1.0f,-1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f,-1.0f,
+        1.0f,-1.0f,-1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f,-1.0f,
+        -1.0f, 1.0f,-1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f,-1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        -1.0f, 1.0f, 1.0f,
+        1.0f,-1.0f, 1.0f
+    };
+
+    GLfloat colors[144] = {
+        0.583f,  0.771f,  0.014f, 1.f,
+        0.609f,  0.115f,  0.436f, 1.f,
+        0.327f,  0.483f,  0.844f, 1.f,
+        0.822f,  0.569f,  0.201f, 1.f,
+        0.435f,  0.602f,  0.223f, 1.f,
+        0.310f,  0.747f,  0.185f, 1.f,
+        0.597f,  0.770f,  0.761f, 1.f,
+        0.559f,  0.436f,  0.730f, 1.f,
+        0.359f,  0.583f,  0.152f, 1.f,
+        0.483f,  0.596f,  0.789f, 1.f,
+        0.559f,  0.861f,  0.639f, 1.f,
+        0.195f,  0.548f,  0.859f, 1.f,
+        0.014f,  0.184f,  0.576f, 1.f,
+        0.771f,  0.328f,  0.970f, 1.f,
+        0.406f,  0.615f,  0.116f, 1.f,
+        0.676f,  0.977f,  0.133f, 1.f,
+        0.971f,  0.572f,  0.833f, 1.f,
+        0.140f,  0.616f,  0.489f, 1.f,
+        0.997f,  0.513f,  0.064f, 1.f,
+        0.945f,  0.719f,  0.592f, 1.f,
+        0.543f,  0.021f,  0.978f, 1.f,
+        0.279f,  0.317f,  0.505f, 1.f,
+        0.167f,  0.620f,  0.077f, 1.f,
+        0.347f,  0.857f,  0.137f, 1.f,
+        0.055f,  0.953f,  0.042f, 1.f,
+        0.714f,  0.505f,  0.345f, 1.f,
+        0.783f,  0.290f,  0.734f, 1.f,
+        0.722f,  0.645f,  0.174f, 1.f,
+        0.302f,  0.455f,  0.848f, 1.f,
+        0.225f,  0.587f,  0.040f, 1.f,
+        0.517f,  0.713f,  0.338f, 1.f,
+        0.053f,  0.959f,  0.120f, 1.f,
+        0.393f,  0.621f,  0.362f, 1.f,
+        0.673f,  0.211f,  0.457f, 1.f,
+        0.820f,  0.883f,  0.371f, 1.f,
+        0.982f,  0.099f,  0.879f, 1.f
+    };
+
+    GLfloat uvs[72] = {
+        0.f, 1.f,
+        1.f, 1.f,
+        0.f, 0.f,
+        0.f, 0.f,
+        1.f, 1.f,
+        1.f, 0.f,
+        0.f, 1.f,
+        1.f, 1.f,
+        0.f, 0.f,
+        0.f, 0.f,
+        1.f, 1.f,
+        1.f, 0.f,
+        0.f, 1.f,
+        1.f, 1.f,
+        0.f, 0.f,
+        0.f, 0.f,
+        1.f, 1.f,
+        1.f, 0.f,
+        0.f, 1.f,
+        1.f, 1.f,
+        0.f, 0.f,
+        0.f, 0.f,
+        1.f, 1.f,
+        1.f, 0.f,
+        0.f, 1.f,
+        1.f, 1.f,
+        0.f, 0.f,
+        0.f, 0.f,
+        1.f, 1.f,
+        1.f, 0.f,
+        0.f, 1.f,
+        1.f, 1.f,
+        0.f, 0.f,
+        0.f, 0.f,
+        1.f, 1.f,
+        1.f, 0.f
+    };
+    GLuint vertBuf, colorBuf, uvBuf, normalBuf;
+
+    GLfloat normals[108];
 };
 
 static const char* vertex_shader_text =
@@ -69,6 +196,7 @@ static const char* vertex_shader_text =
     "layout(location=0) in vec3 in_Position;\n"\
     "layout(location=1) in vec4 in_Color;\n"\
     "layout(location=2) in vec2 in_uv;\n"\
+    "layout(location=3) in vec3 in_normal;\n"\
     "uniform mat4 modelMat;\n"\
     "uniform mat4 viewMat;\n"\
     "uniform mat4 projMat;\n"\
@@ -82,7 +210,22 @@ static const char* vertex_shader_text =
     "  ex_uv = in_uv;\n"\
     "}\n"
 };
+
 static const char* fragment_shader_text =
+{
+    "#version 400\n"\
+    
+    "in vec4 ex_Color;\n"\
+    "in vec2 ex_uv;\n"\
+    "out vec4 out_Color;\n"\
+    
+    "void main(void)\n"\
+    "{\n"\
+    "  out_Color = ex_Color;\n"\
+    "}\n"
+};
+
+static const char* fragment_shader_texture_text =
 {
     "#version 400\n"\
     
@@ -94,6 +237,64 @@ static const char* fragment_shader_text =
     "void main(void)\n"\
     "{\n"\
     "  out_Color = texture(tex, ex_uv) * ex_Color;\n"\
+    "}\n"
+};
+
+static const char* vertex_shader_light_text =
+{
+    "#version 400\n"\
+    
+    "layout(location=0) in vec3 in_Position;\n"\
+    "layout(location=1) in vec4 in_Color;\n"\
+    "layout(location=2) in vec2 in_uv;\n"\
+    "layout(location=3) in vec3 in_normal;\n"\
+    "uniform mat4 modelMat;\n"\
+    "uniform mat4 viewMat;\n"\
+    "uniform mat4 projMat;\n"\
+    "out vec4 ex_Color;\n"\
+    "out vec2 ex_uv;\n"\
+
+    "out vec3 ex_Normal_cameraspace;\n"\
+    "out vec3 ex_LightDirection_cameraspace;\n"\
+    
+    "vec3 Position_worldspace;\n"\
+    "vec3 vertexPosition_cameraspace;\n"\
+    "vec3 EyeDirection_cameraspace;\n"\
+    "vec3 LightPosition_cameraspace;\n"\
+    
+    "void main(void)\n"\
+    "{\n"\
+    "  gl_Position = projMat * viewMat * modelMat * vec4(in_Position.x, in_Position.y, in_Position.z, 1.0);\n"\
+    "  ex_Color = in_Color;\n"\
+    "  ex_uv = in_uv;\n"\
+    "  ex_uv = in_uv;\n"\
+    "  Position_worldspace = (modelMat * vec4(in_Position,1)).xyz;\n"\
+    "  vertexPosition_cameraspace = ( viewMat * modelMat * vec4(in_Position,1)).xyz;\n"\
+    "  EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;\n"\
+    "  LightPosition_cameraspace = ( viewMat * vec4(2,2,1,1)).xyz;\n"\
+    "  ex_LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;\n"\
+    "  ex_Normal_cameraspace = (viewMat * modelMat * vec4(in_normal,0)).xyz;\n"\
+    "}\n"
+};
+static const char* fragment_shader_light_text =
+{
+    "#version 400\n"\
+    
+    "in vec4 ex_Color;\n"\
+    "in vec2 ex_uv;\n"\
+    "out vec4 out_Color;\n"\
+    "uniform sampler2D tex;\n"\
+    
+    "in vec3 ex_Normal_cameraspace;\n"\
+    "in vec3 ex_LightDirection_cameraspace;\n"\
+
+    "void main(void)\n"\
+    "{\n"\
+    "  vec4 MaterialAmbientColor = vec4(0.1,0.1,0.1,1.0) * ex_Color;\n"\
+    "  vec3 n = normalize( ex_Normal_cameraspace );\n"\
+    "  vec3 l = normalize( ex_LightDirection_cameraspace );\n"\
+    "  float cosTheta = clamp( dot( n,l ), 0,1 );\n"\
+    "  out_Color = texture(tex, ex_uv) * (MaterialAmbientColor + ex_Color * cosTheta);\n"\
     "}\n"
 };
 
@@ -222,7 +423,8 @@ int main(int argc, const char** argv)
 {
     cout << "tfw application start" << endl;
     GLFWwindow* window;
-    GLuint vertex_buffer, vertex_shader, fragment_shader, program;
+    GLuint vertex_shader, fragment_shader, program;
+    GLuint vertex_shader_light, fragment_shader_light, program_light;
     
     GLuint triVaoId, quadVaoId;
     GLuint colorBuffer;
@@ -258,13 +460,24 @@ int main(int argc, const char** argv)
     glAttachShader(program, vertex_shader);
     glAttachShader(program, fragment_shader);
     glLinkProgram(program);
+
+    vertex_shader_light = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex_shader_light, 1, &vertex_shader_light_text, NULL);
+    glCompileShader(vertex_shader_light);
+    fragment_shader_light = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment_shader_light, 1, &fragment_shader_light_text, NULL);
+    glCompileShader(fragment_shader_light);
+    program_light = glCreateProgram();
+    glAttachShader(program_light, vertex_shader_light);
+    glAttachShader(program_light, fragment_shader_light);
+    glLinkProgram(program_light);
     
     // create the vertex array
     glGenVertexArrays(1, &triVaoId);
     glBindVertexArray(triVaoId);
     
     // create the vbo
-    Tri tri;
+    Cube tri;
     glGenBuffers(1, &tri.vertBuf);
     glBindBuffer(GL_ARRAY_BUFFER, tri.vertBuf);
     glBufferData(GL_ARRAY_BUFFER, sizeof(tri.vertices), tri.vertices, GL_STATIC_DRAW);
@@ -280,6 +493,33 @@ int main(int argc, const char** argv)
     glBufferData(GL_ARRAY_BUFFER, sizeof(tri.uvs), tri.uvs, GL_STATIC_DRAW);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
+
+    int numTris = 12;
+    for (int t = 0; t < numTris; ++t) {
+        vec3 edge1, edge2, normal;
+        vec3 v1 = { tri.vertices[t*9+0], tri.vertices[t*9+1], tri.vertices[t*9+2] };
+        vec3 v2 = { tri.vertices[t*9+3], tri.vertices[t*9+4], tri.vertices[t*9+5] };
+        vec3 v3 = { tri.vertices[t*9+6], tri.vertices[t*9+7], tri.vertices[t*9+8] };
+        vec3_sub(edge1, v2, v1);
+        vec3_sub(edge2, v3, v1);
+        vec3_mul_cross(normal, edge1, edge2);
+        vec3_norm(normal, normal);
+        tri.normals[t*9+0] = normal[0];
+        tri.normals[t*9+1] = normal[1];
+        tri.normals[t*9+2] = normal[2];
+        tri.normals[t*9+3] = normal[0];
+        tri.normals[t*9+4] = normal[1];
+        tri.normals[t*9+5] = normal[2];
+        tri.normals[t*9+6] = normal[0];
+        tri.normals[t*9+7] = normal[1];
+        tri.normals[t*9+8] = normal[2];
+    }
+
+    glGenBuffers(1, &tri.normalBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, tri.normalBuf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(tri.normals), tri.normals, GL_STATIC_DRAW);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(3);
 
     Quad quad;
     glGenVertexArrays(1, &quadVaoId);
@@ -300,9 +540,36 @@ int main(int argc, const char** argv)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
     
-    GLuint modelMatLocation = glGetUniformLocation(program, "modelMat");
-    GLuint viewMatLocation = glGetUniformLocation(program, "viewMat");
-    GLuint projMatLocation = glGetUniformLocation(program, "projMat");
+    numTris = 2;
+    for (int t = 0; t < numTris; ++t) {
+        vec3 edge1, edge2, normal;
+        vec3 v1 = { quad.vertices[t*9+0], quad.vertices[t*9+1], quad.vertices[t*9+2] };
+        vec3 v2 = { quad.vertices[t*9+3], quad.vertices[t*9+4], quad.vertices[t*9+5] };
+        vec3 v3 = { quad.vertices[t*9+6], quad.vertices[t*9+7], quad.vertices[t*9+8] };
+        vec3_sub(edge1, v2, v1);
+        vec3_sub(edge2, v3, v1);
+        vec3_mul_cross(normal, edge1, edge2);
+        vec3_norm(normal, normal);
+        quad.normals[t*9+0] = normal[0];
+        quad.normals[t*9+1] = normal[1];
+        quad.normals[t*9+2] = normal[2];
+        quad.normals[t*9+3] = normal[0];
+        quad.normals[t*9+4] = normal[1];
+        quad.normals[t*9+5] = normal[2];
+        quad.normals[t*9+6] = normal[0];
+        quad.normals[t*9+7] = normal[1];
+        quad.normals[t*9+8] = normal[2];
+    }
+
+    glGenBuffers(1, &quad.normalBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, quad.normalBuf);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(quad.normals), quad.normals, GL_STATIC_DRAW);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(3);
+
+    GLuint modelMatLocation = glGetUniformLocation(program_light, "modelMat");
+    GLuint viewMatLocation = glGetUniformLocation(program_light, "viewMat");
+    GLuint projMatLocation = glGetUniformLocation(program_light, "projMat");
     
     tfw::Scene scene;
     
@@ -317,7 +584,7 @@ int main(int argc, const char** argv)
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, im.data());
-    glUniform1i(glGetUniformLocation(program, "tex"), 0);
+    glUniform1i(glGetUniformLocation(program_light, "tex"), 0);
     
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -326,6 +593,7 @@ int main(int argc, const char** argv)
     
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
     //ygl::gl_enable_wireframe(true);
     while (!glfwWindowShouldClose(window))
     {
@@ -338,7 +606,8 @@ int main(int argc, const char** argv)
         glClear(GL_COLOR_BUFFER_BIT);
         glClear(GL_DEPTH_BUFFER_BIT);
         mat4x4_identity(m);
-        glUseProgram(program);
+        glBindTexture(GL_TEXTURE_2D, tex);
+        glUseProgram(program_light);
         // spin the model
         mat4x4_translate(m, 0.f, 0.f, -1.f);
 
@@ -350,12 +619,13 @@ int main(int argc, const char** argv)
         glBindVertexArray(quadVaoId);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         mat4x4_rotate_Y(m, m, (float) glfwGetTime());
-        glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*)m);
+        //glUseProgram(program);
+        glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*) m);
+        glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, (const GLfloat*) view);
+        glUniformMatrix4fv(projMatLocation, 1, GL_FALSE, (const GLfloat*) perspective);
         glBindVertexArray(triVaoId);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        
-        
-        
+        glDrawArrays(GL_TRIANGLES, 0, 3*36);
+
         scene.render();
         
         glfwSwapBuffers(window);
