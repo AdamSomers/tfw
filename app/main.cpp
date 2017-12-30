@@ -218,20 +218,6 @@ static const char* fragment_shader_text =
     "in vec4 ex_Color;\n"\
     "in vec2 ex_uv;\n"\
     "out vec4 out_Color;\n"\
-    
-    "void main(void)\n"\
-    "{\n"\
-    "  out_Color = ex_Color;\n"\
-    "}\n"
-};
-
-static const char* fragment_shader_texture_text =
-{
-    "#version 400\n"\
-    
-    "in vec4 ex_Color;\n"\
-    "in vec2 ex_uv;\n"\
-    "out vec4 out_Color;\n"\
     "uniform sampler2D tex;\n"\
     
     "void main(void)\n"\
@@ -259,7 +245,7 @@ static const char* vertex_shader_light_text =
     
     "vec3 Position_worldspace;\n"\
     "vec3 vertexPosition_cameraspace;\n"\
-    "vec3 EyeDirection_cameraspace;\n"\
+    "out vec3 ex_EyeDirection_cameraspace;\n"\
     "vec3 LightPosition_cameraspace;\n"\
     
     "void main(void)\n"\
@@ -270,9 +256,9 @@ static const char* vertex_shader_light_text =
     "  ex_uv = in_uv;\n"\
     "  Position_worldspace = (modelMat * vec4(in_Position,1)).xyz;\n"\
     "  vertexPosition_cameraspace = ( viewMat * modelMat * vec4(in_Position,1)).xyz;\n"\
-    "  EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;\n"\
+    "  ex_EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;\n"\
     "  LightPosition_cameraspace = ( viewMat * vec4(2,2,1,1)).xyz;\n"\
-    "  ex_LightDirection_cameraspace = LightPosition_cameraspace + EyeDirection_cameraspace;\n"\
+    "  ex_LightDirection_cameraspace = LightPosition_cameraspace + ex_EyeDirection_cameraspace;\n"\
     "  ex_Normal_cameraspace = (viewMat * modelMat * vec4(in_normal,0)).xyz;\n"\
     "}\n"
 };
@@ -287,6 +273,7 @@ static const char* fragment_shader_light_text =
     
     "in vec3 ex_Normal_cameraspace;\n"\
     "in vec3 ex_LightDirection_cameraspace;\n"\
+    "in vec3 ex_EyeDirection_cameraspace;\n"\
 
     "void main(void)\n"\
     "{\n"\
@@ -294,7 +281,10 @@ static const char* fragment_shader_light_text =
     "  vec3 n = normalize( ex_Normal_cameraspace );\n"\
     "  vec3 l = normalize( ex_LightDirection_cameraspace );\n"\
     "  float cosTheta = clamp( dot( n,l ), 0,1 );\n"\
-    "  out_Color = texture(tex, ex_uv) * (MaterialAmbientColor + ex_Color * cosTheta);\n"\
+    "  vec3 E = normalize(ex_EyeDirection_cameraspace);\n"\
+    "  vec3 R = reflect(-l,n);\n"\
+    "  float cosAlpha = clamp( dot( E,R ), 0,1 );\n"\
+    "  out_Color = texture(tex, ex_uv) * (MaterialAmbientColor + ex_Color * cosTheta + ex_Color * pow(cosAlpha,5));\n"\
     "}\n"
 };
 
@@ -577,15 +567,19 @@ int main(int argc, const char** argv)
     GLuint tex;
     glGenTextures(1, &tex);
     glBindTexture(GL_TEXTURE_2D, tex);
-    float pixels[] = {
-        1.0f, 1.0f, 1.0f,   0.f, 0.f, 0.f, 0.f,
-        0.f, 0.f, 0.f, 0.f,   1.0f, 1.0f, 1.0f
-    };
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, tex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 256, 256, 0, GL_RGBA, GL_UNSIGNED_BYTE, im.data());
-    glUniform1i(glGetUniformLocation(program_light, "tex"), 0);
-    
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    float pixel[] = {
+        1.0f, 1.0f, 1.0f, 1.f
+    };
+    GLuint texWhite;
+    glGenTextures(1, &texWhite);
+    glBindTexture(GL_TEXTURE_2D, texWhite);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, pixel);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -619,11 +613,11 @@ int main(int argc, const char** argv)
         glBindVertexArray(quadVaoId);
         glDrawArrays(GL_TRIANGLES, 0, 6);
         mat4x4_rotate_Y(m, m, (float) glfwGetTime());
-        //glUseProgram(program);
         glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*) m);
         glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, (const GLfloat*) view);
         glUniformMatrix4fv(projMatLocation, 1, GL_FALSE, (const GLfloat*) perspective);
         glBindVertexArray(triVaoId);
+        glBindTexture(GL_TEXTURE_2D, texWhite);
         glDrawArrays(GL_TRIANGLES, 0, 3*36);
 
         scene.render();
