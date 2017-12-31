@@ -37,12 +37,12 @@ struct Tri {
 
 struct Quad {
     GLfloat vertices[18] = {
-        -10.f, -1.f, 10.f,
-        10.f,  -1.f, 10.f,
-        -10.f, -1.f, -10.f,
-        -10.f, -1.f, -10.f,
-        10.f,  -1.f, 10.f,
-        10.f, -1.f, -10.f
+        -10.f, 0.f, 10.f,
+        10.f,  0.f, 10.f,
+        -10.f, 0.f, -10.f,
+        -10.f, 0.f, -10.f,
+        10.f,  0.f, 10.f,
+        10.f, 0.f, -10.f
     };
 
     GLfloat colors[24] = {
@@ -257,7 +257,7 @@ static const char* vertex_shader_light_text =
     "  Position_worldspace = (modelMat * vec4(in_Position,1)).xyz;\n"\
     "  vertexPosition_cameraspace = ( viewMat * modelMat * vec4(in_Position,1)).xyz;\n"\
     "  ex_EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;\n"\
-    "  LightPosition_cameraspace = ( viewMat * vec4(2,2,1,1)).xyz;\n"\
+    "  LightPosition_cameraspace = ( viewMat * vec4(0,4,2.2,1)).xyz;\n"\
     "  ex_LightDirection_cameraspace = LightPosition_cameraspace + ex_EyeDirection_cameraspace;\n"\
     "  ex_Normal_cameraspace = (viewMat * modelMat * vec4(in_normal,0)).xyz;\n"\
     "}\n"
@@ -301,7 +301,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 }
 
 // camera
-vec3 position = { 0, 0, 2 };
+vec3 position = { 0, 1, 4 };
 // horizontal angle : toward -Z
 float horizontalAngle = 3.14f;
 // vertical angle : 0, look at the horizon
@@ -588,6 +588,7 @@ int main(int argc, const char** argv)
     glDepthFunc(GL_LESS);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
+    glfwSwapInterval(1);
     //ygl::gl_enable_wireframe(true);
     while (!glfwWindowShouldClose(window))
     {
@@ -602,8 +603,6 @@ int main(int argc, const char** argv)
         mat4x4_identity(m);
         glBindTexture(GL_TEXTURE_2D, tex);
         glUseProgram(program_light);
-        // spin the model
-        mat4x4_translate(m, 0.f, 0.f, -1.f);
 
         computeMatrices(window);
         glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*) m);
@@ -612,6 +611,7 @@ int main(int argc, const char** argv)
 
         glBindVertexArray(quadVaoId);
         glDrawArrays(GL_TRIANGLES, 0, 6);
+        mat4x4_translate(m, 0.f, 1.f, 0.f);
         mat4x4_rotate_Y(m, m, (float) glfwGetTime());
         glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*) m);
         glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, (const GLfloat*) view);
@@ -620,7 +620,7 @@ int main(int argc, const char** argv)
         glBindTexture(GL_TEXTURE_2D, texWhite);
         glDrawArrays(GL_TRIANGLES, 0, 3*36);
 
-        scene.render();
+        //scene.render();
         
         glfwSwapBuffers(window);
         glfwPollEvents();
