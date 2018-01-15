@@ -26,5 +26,6 @@ Mesh::Ptr MeshCache::buildMesh(const string& name)
     if (name == "cube") {
         mesh = make_shared<Cube>();
     }
+    mesh->genNormals();
     return mesh;
 }

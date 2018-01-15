@@ -7,7 +7,7 @@
 #include <yocto_gl.h>
 
 #include "Scene.h"
-#include "MeshGen.h"
+#include "MeshCache.h"
 
 #include <iostream>
 using namespace std;
@@ -471,8 +471,8 @@ int main(int argc, const char** argv)
     glBindVertexArray(triVaoId);
     
     // create the vbo
-    tfw::MeshGen meshGen;
-    tfw::Mesh::Ptr mesh = meshGen.getMesh("cube");
+    tfw::MeshCache meshCache;
+    tfw::Mesh::Ptr mesh = meshCache.getMesh("cube");
     glGenBuffers(1, &mesh->vertBuf);
     glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuf);
     glBufferData(GL_ARRAY_BUFFER, mesh->getVertices().size() * sizeof(float), mesh->getVertices().data(), GL_STATIC_DRAW);

@@ -7,3 +7,6 @@
 [submodule "ext/yocto-gl"]
 	path = ext/yocto-gl
 	url = git@github.com:xelatihy/yocto-gl.git
+[submodule "ext/googletest"]
+	path = ext/googletest
+	url = git@github.com:google/googletest.git

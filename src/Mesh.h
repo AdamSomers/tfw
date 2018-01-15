@@ -24,8 +24,9 @@ namespace tfw
         unsigned int uvBuf = -1;
         unsigned int colorBuf = -1;
 
-    protected:
         void genNormals();
+
+    protected:
 
         string name;
         vector<float> vertices;

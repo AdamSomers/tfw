@@ -121,5 +121,4 @@ Cube::Cube()
         1.f, 1.f,
         1.f, 0.f
     };
-    genNormals();
 }
