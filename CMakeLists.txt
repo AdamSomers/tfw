@@ -8,7 +8,7 @@ FILE(GLOB_RECURSE sources src/*.cpp src/*.h)
 
 add_executable(tfwapp app/main.cpp ext/glfw/deps/glad.c)
 
-include_directories(src ext/glfw/include ext/glfw/deps ext/stb ext/yocto-gl/yocto)
+include_directories(src src/shapes ext/glfw/include ext/glfw/deps ext/stb ext/yocto-gl/yocto)
 
 add_library(tfwlib ${sources})
 

@@ -7,6 +7,7 @@
 #include <yocto_gl.h>
 
 #include "Scene.h"
+#include "MeshGen.h"
 
 #include <iostream>
 using namespace std;
@@ -237,6 +238,7 @@ static const char* vertex_shader_light_text =
     "uniform mat4 modelMat;\n"\
     "uniform mat4 viewMat;\n"\
     "uniform mat4 projMat;\n"\
+    "uniform vec3 lightPosition;\n"\
     "out vec4 ex_Color;\n"\
     "out vec2 ex_uv;\n"\
 
@@ -257,7 +259,7 @@ static const char* vertex_shader_light_text =
     "  Position_worldspace = (modelMat * vec4(in_Position,1)).xyz;\n"\
     "  vertexPosition_cameraspace = ( viewMat * modelMat * vec4(in_Position,1)).xyz;\n"\
     "  ex_EyeDirection_cameraspace = vec3(0,0,0) - vertexPosition_cameraspace;\n"\
-    "  LightPosition_cameraspace = ( viewMat * vec4(0,4,2.2,1)).xyz;\n"\
+    "  LightPosition_cameraspace = ( viewMat * vec4(lightPosition.x,lightPosition.y,lightPosition.z,1)).xyz;\n"\
     "  ex_LightDirection_cameraspace = LightPosition_cameraspace + ex_EyeDirection_cameraspace;\n"\
     "  ex_Normal_cameraspace = (viewMat * modelMat * vec4(in_normal,0)).xyz;\n"\
     "}\n"
@@ -419,6 +421,8 @@ int main(int argc, const char** argv)
     GLuint triVaoId, quadVaoId;
     GLuint colorBuffer;
     GLuint uvBuffer;
+
+    vec3 lightPos = { 0, 4, 2.2 };
     
     glfwSetErrorCallback(error_callback);
     if (!glfwInit())
@@ -467,47 +471,26 @@ int main(int argc, const char** argv)
     glBindVertexArray(triVaoId);
     
     // create the vbo
-    Cube tri;
-    glGenBuffers(1, &tri.vertBuf);
-    glBindBuffer(GL_ARRAY_BUFFER, tri.vertBuf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tri.vertices), tri.vertices, GL_STATIC_DRAW);
+    tfw::MeshGen meshGen;
+    tfw::Mesh::Ptr mesh = meshGen.getMesh("cube");
+    glGenBuffers(1, &mesh->vertBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->vertBuf);
+    glBufferData(GL_ARRAY_BUFFER, mesh->getVertices().size() * sizeof(float), mesh->getVertices().data(), GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(0);
-    glGenBuffers(1, &tri.colorBuf);
-    glBindBuffer(GL_ARRAY_BUFFER, tri.colorBuf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tri.colors), tri.colors, GL_STATIC_DRAW);
+    glGenBuffers(1, &mesh->colorBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->colorBuf);
+    glBufferData(GL_ARRAY_BUFFER, mesh->getColors().size() * sizeof(float), mesh->getColors().data(), GL_STATIC_DRAW);
     glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(1);
-    glGenBuffers(1, &tri.uvBuf);
-    glBindBuffer(GL_ARRAY_BUFFER, tri.uvBuf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tri.uvs), tri.uvs, GL_STATIC_DRAW);
+    glGenBuffers(1, &mesh->uvBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->uvBuf);
+    glBufferData(GL_ARRAY_BUFFER, mesh->getUVs().size() * sizeof(float), mesh->getUVs().data(), GL_STATIC_DRAW);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
-
-    int numTris = 12;
-    for (int t = 0; t < numTris; ++t) {
-        vec3 edge1, edge2, normal;
-        vec3 v1 = { tri.vertices[t*9+0], tri.vertices[t*9+1], tri.vertices[t*9+2] };
-        vec3 v2 = { tri.vertices[t*9+3], tri.vertices[t*9+4], tri.vertices[t*9+5] };
-        vec3 v3 = { tri.vertices[t*9+6], tri.vertices[t*9+7], tri.vertices[t*9+8] };
-        vec3_sub(edge1, v2, v1);
-        vec3_sub(edge2, v3, v1);
-        vec3_mul_cross(normal, edge1, edge2);
-        vec3_norm(normal, normal);
-        tri.normals[t*9+0] = normal[0];
-        tri.normals[t*9+1] = normal[1];
-        tri.normals[t*9+2] = normal[2];
-        tri.normals[t*9+3] = normal[0];
-        tri.normals[t*9+4] = normal[1];
-        tri.normals[t*9+5] = normal[2];
-        tri.normals[t*9+6] = normal[0];
-        tri.normals[t*9+7] = normal[1];
-        tri.normals[t*9+8] = normal[2];
-    }
-
-    glGenBuffers(1, &tri.normalBuf);
-    glBindBuffer(GL_ARRAY_BUFFER, tri.normalBuf);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(tri.normals), tri.normals, GL_STATIC_DRAW);
+    glGenBuffers(1, &mesh->normalBuf);
+    glBindBuffer(GL_ARRAY_BUFFER, mesh->normalBuf);
+    glBufferData(GL_ARRAY_BUFFER, mesh->getNormals().size() * sizeof(float), mesh->getNormals().data(), GL_STATIC_DRAW);
     glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(3);
 
@@ -530,7 +513,7 @@ int main(int argc, const char** argv)
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, 0);
     glEnableVertexAttribArray(2);
     
-    numTris = 2;
+    int numTris = 2;
     for (int t = 0; t < numTris; ++t) {
         vec3 edge1, edge2, normal;
         vec3 v1 = { quad.vertices[t*9+0], quad.vertices[t*9+1], quad.vertices[t*9+2] };
@@ -560,6 +543,7 @@ int main(int argc, const char** argv)
     GLuint modelMatLocation = glGetUniformLocation(program_light, "modelMat");
     GLuint viewMatLocation = glGetUniformLocation(program_light, "viewMat");
     GLuint projMatLocation = glGetUniformLocation(program_light, "projMat");
+    GLuint lightPositionLocation = glGetUniformLocation(program_light, "lightPosition");
     
     tfw::Scene scene;
     
@@ -590,6 +574,7 @@ int main(int argc, const char** argv)
     glEnable(GL_CULL_FACE);
     glfwSwapInterval(1);
     //ygl::gl_enable_wireframe(true);
+    unsigned long n = 0;
     while (!glfwWindowShouldClose(window))
     {
         float ratio;
@@ -608,6 +593,8 @@ int main(int argc, const char** argv)
         glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, (const GLfloat*) m);
         glUniformMatrix4fv(viewMatLocation, 1, GL_FALSE, (const GLfloat*) view);
         glUniformMatrix4fv(projMatLocation, 1, GL_FALSE, (const GLfloat*) perspective);
+        glUniform3fv(lightPositionLocation, 1, (const GLfloat*) lightPos);
+        lightPos[0] = 5*sin(40*2*3.1415f*n++);
 
         glBindVertexArray(quadVaoId);
         glDrawArrays(GL_TRIANGLES, 0, 6);
